@@ -25,7 +25,7 @@
  '(org-agenda-files nil)
  '(package-selected-packages
    (quote
-    (web-mode all-the-icons-dired all-the-icons yasnippet-snippets json-mode magit rjsx-mode restart-emacs crux ng2-mode markdown-mode flymake-json nodejs-repl yaml-mode flycheck-yamllint zenburn-theme forest-blue-theme js-doc flycheck tide indent-guide auto-complete whitespace-cleanup-mode aggressive-indent smartparens elpy helm))))
+    (rainbow-mode rainbow-delimiters 2048-game web-mode all-the-icons-dired all-the-icons yasnippet-snippets json-mode magit rjsx-mode restart-emacs crux ng2-mode markdown-mode flymake-json nodejs-repl yaml-mode flycheck-yamllint zenburn-theme forest-blue-theme js-doc flycheck tide indent-guide auto-complete whitespace-cleanup-mode aggressive-indent smartparens elpy helm))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -132,6 +132,7 @@
 (add-hook 'prog-mode-hook
 	  #' (lambda ()
 	       (hs-minor-mode)						;; Hook the hs-minor-mode to any prog mode.
+	       (subword-mode)						;; Hook the subword mode to any prog mode.
 	       (define-key prog-mode-map "\C-c C-b" 'hs-hide-block)	;; Hook the C-c C-b command to hide the current block
 	       (define-key prog-mode-map "\C-c C-l" 'hs-hide-level)	;; Hook the C-c C-l command to hide the current level
 	       (define-key prog-mode-map "\C-cg" 'goto-line)		;; Hook the C-cg commang to the goto-line function
@@ -189,6 +190,12 @@
       kept-new-versions 20	;; How many of the newest versions to keep
       kept-old-versions 5	;; and how many of the old
       )
+
+;; Set the rainbow delimiters mode and rainbow-mode
+(add-hook 'prog-mode-hook #'(lambda()
+			      (rainbow-delimiters-mode)
+			      (rainbow-mode)
+			      ))
 
 (provide 'init)
 ;;; init.el ends here
