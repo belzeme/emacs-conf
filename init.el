@@ -1,5 +1,11 @@
 
 ;;; Code:
+
+(message "* --[loading my Emacs init file]--")
+;; uptimes
+(defvar emacs-load-start-time )
+(setq emacs-load-start-time (current-time))
+
 (require 'package)
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
 		    (not (gnutls-available-p))))
@@ -19,7 +25,7 @@
  '(org-agenda-files nil)
  '(package-selected-packages
    (quote
-    (web-mode all-the-icons-dired all-the-icons yasnippet-snippets json-mode magit rjsx-mode restart-emacs beacon crux ng2-mode markdown-mode flymake-json nodejs-repl yaml-mode flycheck-yamllint zenburn-theme forest-blue-theme js-doc flycheck tide indent-guide auto-complete whitespace-cleanup-mode aggressive-indent smartparens elpy helm))))
+    (web-mode all-the-icons-dired all-the-icons yasnippet-snippets json-mode magit rjsx-mode restart-emacs crux ng2-mode markdown-mode flymake-json nodejs-repl yaml-mode flycheck-yamllint zenburn-theme forest-blue-theme js-doc flycheck tide indent-guide auto-complete whitespace-cleanup-mode aggressive-indent smartparens elpy helm))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -82,17 +88,14 @@
 
 ;; Set the auto indentation of the code
 (global-aggressive-indent-mode 1)
-
-;; Exclude modes form the auto indentation code
-(defvar aggressive-indent-excluded-modes)
+(defvar aggressive-indent-excluded-modes) ;; Exclude modes form the auto indentation code
 (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
 
 
 ;; Set the smartparens mode
 (package-initialize)
 (smartparens-global-mode t)
-;; disable the pair highlighting
-(require 'smartparens-config)
+(require 'smartparens-config) ;; disable the pair highlighting
 (setq sp-highlight-pair-overlay nil)
 
 ;; Sets the dired mode to use fancy icons
@@ -126,12 +129,12 @@
 (add-hook 'before-save-hook 'tide-format-before-save)
 (add-hook 'typescript-mode-hook #'setup-tide-mode)
 
-;; Hook the hide block command
 (add-hook 'prog-mode-hook
 	  #' (lambda ()
-	       (hs-minor-mode)
-	       (define-key prog-mode-map "\C-cf" 'hs-toggle-hiding)
-	       (define-key prog-mode-map "\C-cg" 'goto-line)
+	       (hs-minor-mode)						;; Hook the hs-minor-mode to any prog mode.
+	       (define-key prog-mode-map "\C-c C-b" 'hs-hide-block)	;; Hook the C-c C-b command to hide the current block
+	       (define-key prog-mode-map "\C-c C-l" 'hs-hide-level)	;; Hook the C-c C-l command to hide the current level
+	       (define-key prog-mode-map "\C-cg" 'goto-line)		;; Hook the C-cg commang to the goto-line function
 	       ))
 
 ;; Set flycheck mode to all the mode
@@ -140,23 +143,11 @@
 ;; Angular support for emacs
 (require 'ng2-mode)
 
-;; A light following the cursor, to not get lost
-(use-package beacon
-  :ensure t
-  :demand t
-  :diminish beacon-mode
-  :bind* (("M-m g z" . beacon-blink))
-  :config
-  (beacon-mode 1))
-(setq beacon-push-mark 35)
-(setq beacon-color "#666600")
-(setq beacon-blink-when-point-moves-vertically 1)
-
 ;; Set the snippet dirs for yasnippet
 (defvar yas-snippet-dirs)
 (setq yas-snippet-dirs
-      '("~/.emacs.d/snippets" ;; personal snippets
-	"~/.emacs.d/elpa/yasnippet-snippets-20180503.657/snippets" ;; the yasippet-collection
+      '("~/.emacs.d/snippets"						;; personal snippets
+	"~/.emacs.d/elpa/yasnippet-snippets-20180503.657/snippets"	;; the yasippet-collection
 	))
 (yas-global-mode 1)
 
@@ -182,13 +173,23 @@
 	  )
 
 
+;; Sets the org mode
 (require 'org)
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda )
 (setq org-log-done t)
-
 (setq org-agenda-files (list "~/org/work.org"))
-
-(provide '.emacs)
-;;; .emacs ends here
 (put 'upcase-region 'disabled nil)
+
+;; Set emacs backup directory.
+(setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+      backup-by-copying t	;; Don't delink hardlinks
+      version-control t		;; Use version numbers on backup
+      delete-old-versions t	;; Automatically delete excess backup
+      kept-new-versions 20	;; How many of the newest versions to keep
+      kept-old-versions 5	;; and how many of the old
+      )
+
+(provide 'init)
+;;; init.el ends here
+
