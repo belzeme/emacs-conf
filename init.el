@@ -1,10 +1,8 @@
-
+;;; package --- The emacs init package.
+;;; Commentary:
 ;;; Code:
 
 (message "* --[loading my Emacs init file]--")
-;; uptimes
-(defvar emacs-load-start-time )
-(setq emacs-load-start-time (current-time))
 
 (require 'package)
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
@@ -25,7 +23,7 @@
  '(org-agenda-files nil)
  '(package-selected-packages
    (quote
-    (rainbow-mode rainbow-delimiters 2048-game web-mode all-the-icons-dired all-the-icons yasnippet-snippets json-mode magit rjsx-mode restart-emacs crux ng2-mode markdown-mode flymake-json nodejs-repl yaml-mode flycheck-yamllint zenburn-theme forest-blue-theme js-doc flycheck tide indent-guide auto-complete whitespace-cleanup-mode aggressive-indent smartparens elpy helm))))
+    (tide go-mode flycheck-css-colorguard flycheck-color-mode-line rainbow-mode rainbow-delimiters 2048-game web-mode all-the-icons-dired all-the-icons yasnippet-snippets json-mode magit rjsx-mode restart-emacs crux markdown-mode flymake-json nodejs-repl yaml-mode flycheck-yamllint zenburn-theme forest-blue-theme flycheck indent-guide auto-complete whitespace-cleanup-mode aggressive-indent smartparens elpy helm))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -59,12 +57,6 @@
  		    'face 'egoge-display-time)))
 (display-time-mode 1)
 
-;; Set emacs to remap word-based editing commands to sub-worded based editing commands
-(subword-mode +1)
-
-;; Set helm
-(require 'helm-config)
-
 ;; Clean the trailing whitesapce on save
 (require 'whitespace-cleanup-mode)
 
@@ -91,7 +83,6 @@
 (defvar aggressive-indent-excluded-modes) ;; Exclude modes form the auto indentation code
 (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
 
-
 ;; Set the smartparens mode
 (package-initialize)
 (smartparens-global-mode t)
@@ -101,48 +92,17 @@
 ;; Sets the dired mode to use fancy icons
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 
-;; Set the tide mode for the typescript files
-(defun setup-tide-mode ()
-  "Setup the interactive tide mode."
-  (interactive)
-  (tide-setup)
-  (flycheck-mode +1)
-  (defvar flycheck-check-syntax-automatically)
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (eldoc-mode +1)
-  (tide-hl-identifier-mode +1)
-  (company-mode +1))
-
-;; Set the company tooltip annotations
-(defvar company-tooltip-align-annotations)
-(setq company-tooltip-align-annotations t)
-
-;; set tide to hook on .tsx files
-(require 'web-mode)
-(add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
-(add-hook 'web-mode-hook
-	  (lambda()
-	    (when (string-equal "tsx" (file-name-extension buffer-file-name))
-	      (setup-tide-mode))))
-
-;; Hook the setup to the tide configuration functoin
-(add-hook 'before-save-hook 'tide-format-before-save)
-(add-hook 'typescript-mode-hook #'setup-tide-mode)
-
 (add-hook 'prog-mode-hook
 	  #' (lambda ()
 	       (hs-minor-mode)						;; Hook the hs-minor-mode to any prog mode.
 	       (subword-mode)						;; Hook the subword mode to any prog mode.
-	       (define-key prog-mode-map "\C-c C-b" 'hs-hide-block)	;; Hook the C-c C-b command to hide the current block
-	       (define-key prog-mode-map "\C-c C-l" 'hs-hide-level)	;; Hook the C-c C-l command to hide the current level
+	       (define-key prog-mode-map "\C-c\C-b" 'hs-hide-block)	;; Hook the C-c C-b command to hide the current block
+	       (define-key prog-mode-map "\C-c\C-l" 'hs-hide-level)	;; Hook the C-c C-l command to hide the current level
 	       (define-key prog-mode-map "\C-cg" 'goto-line)		;; Hook the C-cg commang to the goto-line function
 	       ))
 
 ;; Set flycheck mode to all the mode
 (add-hook 'after-init-hook #'global-flycheck-mode)
-
-;; Angular support for emacs
-(require 'ng2-mode)
 
 ;; Set the snippet dirs for yasnippet
 (defvar yas-snippet-dirs)
@@ -152,30 +112,11 @@
 	))
 (yas-global-mode 1)
 
-;; Set js-doc to work in the js2-mode and typescritp mode
-(defvar js-doc-mail-address)
-(defvar js-doc-author)
-(defvar js2-mode-map)
-(defvar js-doc-licence)
-
-(setq js-doc-mail-address "clement.belvisee@essp-sas.eu"
-      js-doc-author (format "clement belvisee <%s>" js-doc-mail-address)
-      js-doc-licence "MIT")
-
-(add-hook 'js2-mode-hook #'(lambda()
-			     (define-key js2-mode-map "\C-ci" 'js-doc-insert-function-doc)
-			     (define-key js2-mode-map "@" 'js-doc-insert-tag)))
-
-(defvar typescript-mode-map)
-(add-hook 'typescript-mode-hook #'(lambda()
-
-				    (define-key typescript-mode-map "\C-ci" 'js-doc-insert-function-doc)
-				    (define-key typescript-mode-map "@" 'js-doc-insert-tag))
-	  )
-
-
 ;; Sets the org mode
 (require 'org)
+(setq org-todo-keywords
+      '((sequence "TODO" "TEST" "|" "DONE")))
+
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda )
 (setq org-log-done t)
@@ -196,6 +137,26 @@
 			      (rainbow-delimiters-mode)
 			      (rainbow-mode)
 			      ))
+;; Set the tide mode
+(defun setup-tide-mode ()
+  "Set tide."
+  (interactive)								;; sets the funtion to be callable
+  (tide-setup)								;; init tide
+  (flycheck-mode +1)							;; init flycheck
+  (defvar flycheck-check-syntax-automatically)				;;
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))	;;
+  (eldoc-mode +1)							;; set eldoc mode
+  (tide-hl-identifier-mode +1)
+  (company-mode +1))							;; optional
+
+;; Hook the tides functionnality
+(add-hook 'before-save-hook 'tide-format-before-save)
+(add-hook 'typescript-mode-hook #'setup-tide-mode)
+
+;; aligns the compnay annotation to the right had side
+(defvar company-tooltip-align-annotations)
+(setq company-tooltip-align-annotations t)
+
 
 (provide 'init)
 ;;; init.el ends here
