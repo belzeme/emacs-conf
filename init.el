@@ -23,7 +23,7 @@
  '(org-agenda-files nil)
  '(package-selected-packages
    (quote
-    (tide go-mode flycheck-css-colorguard flycheck-color-mode-line rainbow-mode rainbow-delimiters 2048-game web-mode all-the-icons-dired all-the-icons yasnippet-snippets json-mode magit rjsx-mode restart-emacs crux markdown-mode flymake-json nodejs-repl yaml-mode flycheck-yamllint zenburn-theme forest-blue-theme flycheck indent-guide auto-complete whitespace-cleanup-mode aggressive-indent smartparens elpy helm))))
+    (py-autopep8 material-theme tide go-mode flycheck-css-colorguard flycheck-color-mode-line rainbow-mode rainbow-delimiters 2048-game web-mode all-the-icons-dired all-the-icons yasnippet-snippets json-mode magit rjsx-mode restart-emacs crux markdown-mode flymake-json nodejs-repl yaml-mode flycheck-yamllint zenburn-theme forest-blue-theme flycheck indent-guide auto-complete whitespace-cleanup-mode aggressive-indent smartparens elpy helm))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -32,7 +32,7 @@
  )
 
 ;; Theme loading
-(load-theme 'forest-blue t)
+(load-theme 'material t)
 
 ;; Linum mode
 (global-linum-mode t)
@@ -64,9 +64,11 @@
 (require 'indent-guide)
 (indent-guide-global-mode)
 
-;; Initialie the elpy mode
+;; Initialize the elpy mode
 (package-initialize)
 (elpy-enable)
+(require 'py-autopep8)
+(add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
 
 ;; Configure the markdown mode
 (defvar markdown-mode)
